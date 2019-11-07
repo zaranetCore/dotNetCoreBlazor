@@ -1,0 +1,56 @@
+﻿
+
+<h3>Todo</h3>
+@page "/todo"
+@inject TodoItemService todoitemservice
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Work</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var todoitem in todos)
+        {
+        <tr>
+            <td>@todoitem.IsDone</td>
+            <td>@todoitem.Title</td>
+            <td><button @onclick="(() => RemoveTodo(todoitem.id))"><i class="oi oi-trash"></i></button></td>
+        </tr>
+        }
+    </tbody>
+</table>
+
+<input placeholder="Something todo" @bind="newTodo" />
+<button @onclick="AddTodo">Add todo</button>
+
+@code {
+    private IList<TodoItem> todos = new List<TodoItem>();
+    private string newTodo;
+
+    private void AddTodo()
+    {
+        if (!string.IsNullOrWhiteSpace(newTodo))
+        {
+            todos.Add(new TodoItem { Title = newTodo,id=Guid.NewGuid().ToString() });
+            newTodo = string.Empty;
+        }
+    }
+
+}
+
+@functions{
+
+    protected override async Task OnInitializedAsync()
+    {
+        todos = await todoitemservice.GetTodoItems();
+    }
+    private void RemoveTodo(string id)
+    {
+        todos.Remove(todos.First(x => x.id == id));
+    }
+}
